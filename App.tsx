@@ -19,7 +19,7 @@ import {
   Info
 } from 'lucide-react';
 import { Clock } from './Clock'
-import { WeatherWidget } from './components/WeatherWidget';
+import { WeatherWidget } from './WeatherWidget'
 import { BoardConfig, SchoolData, LessonSlot, SpecialDay, Announcement, DutySection } from './types';
 
 const App: React.FC = () => {
