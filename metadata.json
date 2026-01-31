@@ -1,0 +1,7 @@
+{
+  "name": "Ekol-Pano: Dijital Okul Panosu",
+  "description": "Okullar için modern, dinamik ve yapay zeka destekli dijital pano uygulaması. Duyurular, yemek listesi, hava durumu ve etkinlik yönetimi içerir.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
