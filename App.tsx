@@ -18,7 +18,7 @@ import {
   Moon,
   Info
 } from 'lucide-react';
-import { Clock } from './components/Clock';
+import { Clock } from './Clock'
 import { WeatherWidget } from './components/WeatherWidget';
 import { BoardConfig, SchoolData, LessonSlot, SpecialDay, Announcement, DutySection } from './types';
 
