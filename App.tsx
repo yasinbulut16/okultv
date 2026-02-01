@@ -518,6 +518,28 @@ useEffect(() => {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.2); }
       `}</style>
+    {/* CSS AYARLARI - BURAYI KOPYALAYIP EN ALTA YAPIŞTIRIN */}
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
+        }
+
+        .animate-marquee {
+          display: inline-flex;
+          white-space: nowrap;
+          animation: marquee 25s linear infinite; /* HIZI BURADAN AYARLAYABİLİRSİNİZ (25s) */
+          min-width: 100%;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { 
+          background: rgba(255,255,255,0.1); 
+          border-radius: 10px; 
+        }
+      `}</style>
+       
     </div>
   );
 };
