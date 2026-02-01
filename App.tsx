@@ -39,24 +39,29 @@ const App: React.FC = () => {
     end: isMorning ? `${9 + i}:10` : `${14 + i}:10`
   }));
 
-  const [config, setConfig] = useState<BoardConfig>(() => ({
-    morning: {
-      name: "SABAH ANADOLU LİSESİ",
-      motto: "Bilgi Aydınlıktır",
-      slots: createInitialSlots(true),
-      announcements: [{ id: '1', text: "Sabah grubu deneme sınavı saat 09:00'da başlayacaktır." }],
-      dutyTeachers: createEmptyDuty(),
-      specialDays: [{ name: "Okul Açılış Yıl Dönümü", date: "15.09", type: "Özel Gün" }]
-    },
-    afternoon: {
-      name: "ÖĞLE ANADOLU LİSESİ",
-      motto: "Gelecek Burada Başlar",
-      slots: createInitialSlots(false),
-      announcements: [{ id: '2', text: "Öğle grubu kurs kayıtları devam etmektedir." }],
-      dutyTeachers: createEmptyDuty(),
-      specialDays: [{ name: "29 Ekim Cumhuriyet Bayramı", date: "29.10", type: "Özel Gün" }]
-    }
-  }));
+  const [config, setConfig] = useState<BoardConfig>(() => {
+    // Tarayıcı hafızasına (LocalStorage) bak
+    const saved = localStorage.getItem('schoolBoardConfig');
+    // Eğer kayıt varsa onu kullan, yoksa varsayılan ayarları kullan
+    return saved ? JSON.parse(saved) : {
+      morning: {
+        name: "SABAH ANADOLU LİSESİ",
+        motto: "Bilgi Aydınlıktır",
+        slots: createInitialSlots(true),
+        announcements: [{ id: '1', text: "Sabah grubu deneme sınavı saat 09:00'da başlayacaktır." }],
+        dutyTeachers: createEmptyDuty(),
+        specialDays: [{ name: "Yasin Bulut", date: "01.02", type: "Doğum Günü" }]
+      },
+      afternoon: {
+        name: "ÖĞLE ANADOLU LİSESİ",
+        motto: "Gelecek Burada Başlar",
+        slots: createInitialSlots(false),
+        announcements: [],
+        dutyTeachers: createEmptyDuty(),
+        specialDays: []
+      }
+    };
+  });
 
   const [activeEditTab, setActiveEditTab] = useState<'morning' | 'afternoon'>('morning');
   const [selectedDutyDay, setSelectedDutyDay] = useState<string>("Pazartesi");
@@ -539,7 +544,7 @@ useEffect(() => {
           border-radius: 10px; 
         }
       `}</style>
-       
+
     </div>
   );
 };
