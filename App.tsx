@@ -173,9 +173,14 @@ useEffect(() => {
   ];
   
   return tumListe.filter(item => {
-    const tarih = item.date.trim();
-    return tarih === bugun1 || tarih === bugun2;
-  });
+  const tarih = item.date.trim();
+  // Bilgisayarın tarihinden gelen formatlar
+  const eslesme = tarih === bugun1 || tarih === bugun2;
+  // Manuel kontrol (Eğer bugun1-2 hatalıysa bile 01.02'yi yakalar)
+  const manuelKontrol = tarih === "01.02" || tarih === "1.2";
+  
+  return eslesme || manuelKontrol;
+});
 }, [config.morning.specialDays, config.afternoon.specialDays, currentTime]);
 
   const handleBulkParse = (school: 'morning' | 'afternoon') => {
