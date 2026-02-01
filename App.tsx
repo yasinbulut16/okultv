@@ -40,27 +40,32 @@ const App: React.FC = () => {
   }));
 
   const [config, setConfig] = useState<BoardConfig>(() => {
-    // Tarayıcı hafızasına (LocalStorage) bak
+    // 1. Önce hafızada kayıt var mı kontrol et
     const saved = localStorage.getItem('schoolBoardConfig');
-    // Eğer kayıt varsa onu kullan, yoksa varsayılan ayarları kullan
-    return saved ? JSON.parse(saved) : {
-      morning: {
-        name: "SABAH ANADOLU LİSESİ",
-        motto: "Bilgi Aydınlıktır",
-        slots: createInitialSlots(true),
-        announcements: [{ id: '1', text: "Sabah grubu deneme sınavı saat 09:00'da başlayacaktır." }],
-        dutyTeachers: createEmptyDuty(),
-        specialDays: [{ name: "Yasin Bulut", date: "01.02", type: "Doğum Günü" }]
-      },
-      afternoon: {
-        name: "ÖĞLE ANADOLU LİSESİ",
-        motto: "Gelecek Burada Başlar",
-        slots: createInitialSlots(false),
-        announcements: [],
-        dutyTeachers: createEmptyDuty(),
-        specialDays: []
-      }
-    };
+    
+    // 2. Varsa onu kullan, yoksa varsayılan boş ayarları getir
+    if (saved) {
+      return JSON.parse(saved);
+    } else {
+      return {
+        morning: {
+          name: "SABAH ANADOLU LİSESİ",
+          motto: "Bilgi Aydınlıktır",
+          slots: createInitialSlots(true),
+          announcements: [],
+          dutyTeachers: createEmptyDuty(),
+          specialDays: [{ name: "Yasin Bulut", date: "01.02", type: "Doğum Günü" }]
+        },
+        afternoon: {
+          name: "ÖĞLE ANADOLU LİSESİ",
+          motto: "Gelecek Burada Başlar",
+          slots: createInitialSlots(false),
+          announcements: [],
+          dutyTeachers: createEmptyDuty(),
+          specialDays: []
+        }
+      };
+    }
   });
 
   const [activeEditTab, setActiveEditTab] = useState<'morning' | 'afternoon'>('morning');
@@ -75,6 +80,10 @@ const App: React.FC = () => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+  // Verileri tarayıcı hafızasına kaydetme (Otomatik çalışır)
+  useEffect(() => {
+    localStorage.setItem('schoolBoardConfig', JSON.stringify(config));
+  }, [config]); // config her değiştiğinde (yeni isim eklendiğinde) kaydeder.
 
   // YENİ HALİ (Saate göre değişen)
 useEffect(() => {
