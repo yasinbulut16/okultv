@@ -158,9 +158,25 @@ useEffect(() => {
   };
 
   const todaysSpecial = useMemo(() => {
-    const todayStr = currentTime.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
-    return activeDisplayData.specialDays.filter(d => d.date === todayStr);
-  }, [activeDisplayData.specialDays, currentTime]);
+  const now = new Date();
+  const d = now.getDate();
+  const m = now.getMonth() + 1;
+  
+  // Olası tüm formatları hazırlıyoruz
+  const bugun1 = `${d < 10 ? '0' : ''}${d}.${m < 10 ? '0' : ''}${m}`; // "01.02"
+  const bugun2 = `${d}.${m}`; // "1.2"
+
+  // Sabah ve Öğle listelerinin ikisini de birleştirip kontrol et
+  const tumListe = [
+    ...(config.morning.specialDays || []), 
+    ...(config.afternoon.specialDays || [])
+  ];
+  
+  return tumListe.filter(item => {
+    const tarih = item.date.trim();
+    return tarih === bugun1 || tarih === bugun2;
+  });
+}, [config.morning.specialDays, config.afternoon.specialDays, currentTime]);
 
   const handleBulkParse = (school: 'morning' | 'afternoon') => {
     const lines = bulkInput.split('\n');
