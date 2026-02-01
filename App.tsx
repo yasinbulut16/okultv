@@ -556,22 +556,18 @@ useEffect(() => {
     {/* CSS AYARLARI - BURAYI KOPYALAYIP EN ALTA YAPIŞTIRIN */}
       <style>{`
         @keyframes marquee {
-          0% { transform: translateX(100%); }
+          0% { transform: translateX(100vw); } 
           100% { transform: translateX(-100%); }
         }
-
         .animate-marquee {
           display: inline-flex;
           white-space: nowrap;
-          animation: marquee 25s linear infinite; /* HIZI BURADAN AYARLAYABİLİRSİNİZ (25s) */
-          min-width: 100%;
+          animation: marquee 40s linear infinite;
+          min-width: max-content;
         }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { 
-          background: rgba(255,255,255,0.1); 
-          border-radius: 10px; 
+        .mx-16 {
+          margin-left: 8rem;
+          margin-right: 8rem;
         }
       `}</style>
 
