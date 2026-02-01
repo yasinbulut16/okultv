@@ -71,10 +71,24 @@ const App: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => setIsMorningMode(prev => !prev), 30000);
-    return () => clearInterval(interval);
-  }, []);
+  // YENİ HALİ (Saate göre değişen)
+useEffect(() => {
+  const checkTime = () => {
+    const now = new Date();
+    const currentTimeStr = now.getHours() * 100 + now.getMinutes(); // Örn: 13:20 -> 1320
+    
+    // Saat 13:20'den (1320) küçükse SABAH modu (true), büyükse ÖĞLE modu (false)
+    if (currentTimeStr < 1320) {
+      setIsMorningMode(true);
+    } else {
+      setIsMorningMode(false);
+    }
+  };
+
+  checkTime(); // İlk açılışta kontrol et
+  const interval = setInterval(checkTime, 60000); // Her dakikada bir saati kontrol et
+  return () => clearInterval(interval);
+}, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
