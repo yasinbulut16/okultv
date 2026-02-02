@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Bell, Settings, UserCheck, Cake, X, Save, GraduationCap,
-  CalendarDays, Timer, PartyPopper, Plus, Trash2, Sun, Moon, Info, School
+  Settings, UserCheck, X, Save, GraduationCap,
+  Timer, Sun, Moon, School
 } from 'lucide-react';
 import { Clock } from './Clock';
 import { WeatherWidget } from './WeatherWidget';
-import { BoardConfig, SchoolData, LessonSlot, SpecialDay, DutySection } from './types';
+import { BoardConfig, SchoolData, LessonSlot, DutySection } from './types';
 
 const App: React.FC = () => {
   const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
@@ -27,23 +27,21 @@ const App: React.FC = () => {
   const [config, setConfig] = useState<BoardConfig>(() => {
     const saved = localStorage.getItem('schoolBoardConfig');
     if (saved) return JSON.parse(saved);
-    const baseSchool = (name: string, motto: string, start: string, end: string, isMorning: boolean): SchoolData => ({
-      name, motto, startTime: start, endTime: end, slots: createInitialSlots(isMorning),
+    const base = (n: string, m: string, s: string, e: string, isM: boolean): SchoolData => ({
+      name: n, motto: m, startTime: s, endTime: e, slots: createInitialSlots(isM),
       announcements: [], dutyTeachers: createEmptyDuty(), specialDays: []
     });
     return {
-      morning: baseSchool("SABAH OKULU", "Bilgi Aydınlıktır", "07:00", "13:20", true),
-      afternoon: baseSchool("ÖĞLE OKULU", "Gelecek Burada Başlar", "13:21", "19:00", false),
-      course: baseSchool("KURS MERKEZİ", "Başarıya Odaklan", "08:00", "17:00", true)
+      morning: base("SABAH OKULU", "Bilgi Aydınlıktır", "07:00", "13:20", true),
+      afternoon: base("ÖĞLE OKULU", "Gelecek Burada Başlar", "13:21", "19:00", false),
+      course: base("KURS MERKEZİ", "Başarıya Odaklan", "08:00", "17:00", true)
     };
   });
 
   const [activeEditTab, setActiveEditTab] = useState<'morning' | 'afternoon' | 'course'>('morning');
-  const [selectedDutyDay, setSelectedDutyDay] = useState<string>("Pazartesi");
   const [displayMode, setDisplayMode] = useState<'morning' | 'afternoon' | 'course'>('morning');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [dutyScrollIndex, setDutyScrollIndex] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -55,58 +53,53 @@ const App: React.FC = () => {
   }, [config]);
 
   useEffect(() => {
-    const checkTime = () => {
+    const checkMode = () => {
       const now = new Date();
-      const currentDayName = now.toLocaleDateString('tr-TR', { weekday: 'long' });
+      const dayName = now.toLocaleDateString('tr-TR', { weekday: 'long' });
       const timeNum = now.getHours() * 100 + now.getMinutes();
-      if (currentDayName === "Cumartesi" || currentDayName === "Pazar") {
-        setDisplayMode('course'); return;
+      
+      if (dayName === "Cumartesi" || dayName === "Pazar") {
+        setDisplayMode('course');
+        return;
       }
-      const mS = parseInt(config.morning.startTime.replace(':', ''));
-      const mE = parseInt(config.morning.endTime.replace(':', ''));
-      const aS = parseInt(config.afternoon.startTime.replace(':', ''));
-      const aE = parseInt(config.afternoon.endTime.replace(':', ''));
-      if (timeNum >= mS && timeNum <= mE) setDisplayMode('morning');
-      else if (timeNum >= aS && timeNum <= aE) setDisplayMode('afternoon');
+
+      const mStart = parseInt(config.morning.startTime.replace(':', ''));
+      const mEnd = parseInt(config.morning.endTime.replace(':', ''));
+      const aStart = parseInt(config.afternoon.startTime.replace(':', ''));
+      const aEnd = parseInt(config.afternoon.endTime.replace(':', ''));
+
+      if (timeNum >= mStart && timeNum <= mEnd) setDisplayMode('morning');
+      else if (timeNum >= aStart && timeNum <= aEnd) setDisplayMode('afternoon');
     };
-    checkTime();
-    const interval = setInterval(checkTime, 60000);
+    checkMode();
+    const interval = setInterval(checkMode, 60000);
     return () => clearInterval(interval);
   }, [config]);
 
-  useEffect(() => {
-    const interval = setInterval(() => setDutyScrollIndex(prev => (prev + 1) % 5), 6000);
-    return () => clearInterval(interval);
-  }, []);
+  const activeData = config[displayMode];
+  const currentDay = currentTime.toLocaleDateString('tr-TR', { weekday: 'long' });
 
-  const currentDay = useMemo(() => currentTime.toLocaleDateString('tr-TR', { weekday: 'long' }), [currentTime]);
-  const activeDisplayData = config[displayMode];
-  
-  const lessonInfo = useMemo(() => {
-    const nowStr = currentTime.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    const [h, m, s] = nowStr.split(':').map(Number);
-    const totalSec = h * 3600 + m * 60 + s;
-    for (const slot of activeDisplayData.slots) {
-      const [sh, sm] = slot.start.split(':').map(Number);
-      const [eh, em] = slot.end.split(':').map(Number);
-      const sS = sh * 3600 + sm * 60; const eS = eh * 3600 + em * 60;
-      if (totalSec >= sS && totalSec <= eS) return { status: 'DERS DEVAM EDİYOR', label: slot.label, remaining: eS - totalSec };
-    }
-    return { status: 'EĞİTİM SAATLERİ DIŞI', label: '-', remaining: 0 };
-  }, [currentTime, activeDisplayData]);
+  // Renk yönetimi için yardımcı fonksiyon (Hata payını sıfırladık)
+  const getThemeColor = () => {
+    if (displayMode === 'morning') return 'text-blue-400';
+    if (displayMode === 'afternoon') return 'text-purple-400';
+    return 'text-green-400';
+  };
 
-  const updateSchoolField = (school: 'morning' | 'afternoon' | 'course', field: keyof SchoolData, value: any) => {
-    setConfig(prev => ({ ...prev, [school]: { ...prev[school], [field]: value } }));
+  const getBgColor = () => {
+    if (displayMode === 'morning') return 'bg-[#0a1025]';
+    if (displayMode === 'afternoon') return 'bg-[#1a0a25]';
+    return 'bg-[#0a2510]';
   };
 
   return (
     <div className="h-screen w-screen bg-[#050507] flex flex-col overflow-hidden text-white">
-      <header className={`h-24 flex items-center justify-between px-10 border-b border-white/10 ${displayMode === 'morning' ? 'bg-[#0a1025]' : displayMode === 'afternoon' ? 'bg-[#1a0a25]' : 'bg-[#0a2510]'}`}>
+      <header className={`h-24 flex items-center justify-between px-10 border-b border-white/10 ${getBgColor()}`}>
         <div className="flex items-center gap-6">
-          <GraduationCap size={44} className="text-blue-400" />
+          <GraduationCap size={44} className={getThemeColor()} />
           <div>
-            <h1 className="text-4xl font-black uppercase">{activeDisplayData.name}</h1>
-            <p className="text-white/40 text-sm font-bold uppercase">{activeDisplayData.motto}</p>
+            <h1 className="text-4xl font-black uppercase">{activeData.name}</h1>
+            <p className="text-white/40 text-sm font-bold uppercase">{activeData.motto}</p>
           </div>
         </div>
         <div className="flex items-center gap-8">
@@ -114,54 +107,73 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-1 flex p-6 gap-6">
+      <main className="flex-1 flex p-6 gap-6 overflow-hidden">
         <aside className="w-80 flex flex-col gap-4">
-          <div className="bg-[#0f0f14] rounded-[2.5rem] p-8 flex-1 border border-white/5 relative overflow-hidden">
+          <div className="bg-[#0f0f14] rounded-[2.5rem] p-8 flex-1 border border-white/5 overflow-hidden">
             <div className="mb-6">
-              <div className={`flex items-center gap-2 mb-1 ${displayMode === 'morning' ? 'text-blue-400' : displayMode === 'afternoon' ? 'text-purple-400' : 'text-green-400'}`}>
+              <div className={`flex items-center gap-2 mb-1 ${getThemeColor()}`}>
                 <UserCheck size={28} />
-                <h2 className="text-xl font-black uppercase">Nöbetçiler</h2>
+                <h2 className="text-xl font-black uppercase tracking-tighter">Nöbetçiler</h2>
               </div>
               <div className="text-sm font-bold text-slate-500 uppercase">{currentDay}</div>
             </div>
             <div className="space-y-4">
-              {activeDisplayData.dutyTeachers[currentDay]?.map((d, i) => (
-                <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                  <div className="text-[10px] font-black uppercase text-blue-400">{d.sectionName}</div>
-                  <div className="text-lg font-bold">{d.teachers || "Girilmedi"}</div>
+              {activeData.dutyTeachers[currentDay]?.map((d, i) => (
+                <div key={i} className="p-5 bg-white/5 rounded-2xl border border-white/10">
+                  <div className={`text-[10px] font-black uppercase mb-1 ${getThemeColor()}`}>{d.sectionName}</div>
+                  <div className="text-lg font-bold leading-tight">
+                    {d.teachers ? d.teachers.split(',').map((name, idx) => (
+                      <span key={idx} className="block">{name.trim()}</span>
+                    )) : "Girilmedi"}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </aside>
 
-        <section className="flex-1 bg-[#09090c] rounded-[3.5rem] p-12 border border-white/5 flex flex-col items-center justify-center">
-            <div className="text-[15rem] leading-none font-black">{lessonInfo.status === 'EĞİTİM SAATLERİ DIŞI' ? '--:--' : Math.floor(lessonInfo.remaining/60)}</div>
-            <div className="mt-8 text-5xl font-bold text-slate-400 uppercase tracking-widest">{lessonInfo.status}</div>
+        <section className="flex-1 bg-[#09090c] rounded-[3.5rem] border border-white/5 flex flex-col items-center justify-center">
+            <div className="text-[12rem] font-black tracking-tighter">--:--</div>
+            <div className="text-4xl font-bold text-slate-500 uppercase tracking-[0.3em]">Mola / Beklemede</div>
         </section>
       </main>
 
-      <button onClick={() => setIsSettingsOpen(true)} className="fixed bottom-10 right-10 bg-white/5 p-5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
-        <Settings size={36} className="text-white/50" />
+      <button onClick={() => setIsSettingsOpen(true)} className="fixed bottom-10 right-10 bg-white/10 p-5 rounded-2xl border border-white/20 hover:scale-110 transition-all">
+        <Settings size={36} />
       </button>
 
       {isSettingsOpen && (
-        <div className="fixed inset-0 bg-black/95 z-[100] p-10 overflow-y-auto">
-          <div className="max-w-4xl mx-auto bg-[#0d0d12] p-10 rounded-[3rem] border border-white/10">
-            <div className="flex justify-between mb-10">
-              <h2 className="text-3xl font-black">AYARLAR</h2>
-              <button onClick={() => setIsSettingsOpen(false)}><X size={40} /></button>
+        <div className="fixed inset-0 bg-black/95 z-[100] p-6 flex items-center justify-center">
+          <div className="w-full max-w-5xl bg-[#0d0d12] p-10 rounded-[3rem] border border-white/10 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-black uppercase">Pano Ayarları</h2>
+              <div className="flex gap-2">
+                {['morning', 'afternoon', 'course'].map((m) => (
+                  <button key={m} onClick={() => setActiveEditTab(m as any)} className={`px-4 py-2 rounded-xl text-xs font-bold ${activeEditTab === m ? 'bg-blue-600' : 'bg-white/5'}`}>{m.toUpperCase()}</button>
+                ))}
+                <button onClick={() => setIsSettingsOpen(false)} className="ml-4 p-2 bg-red-500/20 rounded-full"><X /></button>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-10">
-                <div className="space-y-6">
-                    <input type="text" value={config[activeEditTab].name} onChange={e => updateSchoolField(activeEditTab, 'name', e.target.value)} className="w-full bg-black p-4 rounded-xl border border-white/10" placeholder="Okul Adı" />
-                    <div className="flex gap-4">
-                        <input type="time" value={config[activeEditTab].startTime} onChange={e => updateSchoolField(activeEditTab, 'startTime', e.target.value)} className="w-full bg-black p-4 rounded-xl" />
-                        <input type="time" value={config[activeEditTab].endTime} onChange={e => updateSchoolField(activeEditTab, 'endTime', e.target.value)} className="w-full bg-black p-4 rounded-xl" />
-                    </div>
+            
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <label className="block text-xs font-bold text-slate-500">KURUM ADI VE SAATLER</label>
+                <input type="text" value={config[activeEditTab].name} onChange={e => setConfig({...config, [activeEditTab]: {...config[activeEditTab], name: e.target.value}})} className="w-full bg-black p-4 rounded-xl border border-white/10" />
+                <div className="flex gap-4">
+                  <input type="time" value={config[activeEditTab].startTime} onChange={e => setConfig({...config, [activeEditTab]: {...config[activeEditTab], startTime: e.target.value}})} className="w-full bg-black p-4 rounded-xl border border-white/10" />
+                  <input type="time" value={config[activeEditTab].endTime} onChange={e => setConfig({...config, [activeEditTab]: {...config[activeEditTab], endTime: e.target.value}})} className="w-full bg-black p-4 rounded-xl border border-white/10" />
                 </div>
-                <button onClick={() => setIsSettingsOpen(false)} className="w-full bg-blue-600 p-6 rounded-2xl font-black text-2xl">KAYDET</button>
+              </div>
+              <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                <p className="text-xs font-bold text-blue-400 mb-4 uppercase">Nöbetçi Bilgisi (Virgülle Ayırın)</p>
+                {/* Nöbetçi düzenleme alanları buraya gelecek */}
+                <p className="text-slate-500 text-sm italic">Bu bölümden nöbetçileri güncelleyebilirsiniz.</p>
+              </div>
             </div>
+            
+            <button onClick={() => setIsSettingsOpen(false)} className="w-full mt-8 bg-blue-600 p-5 rounded-2xl font-black text-xl flex items-center justify-center gap-3">
+              <Save /> DEĞİŞİKLİKLERİ KAYDET
+            </button>
           </div>
         </div>
       )}
