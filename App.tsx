@@ -215,5 +215,9 @@ const App: React.FC = () => {
           <div className="bg-[#0f0f14] rounded-[2.5rem] p-8 flex-1 border border-white/5 shadow-2xl flex flex-col relative overflow-hidden">
             <div className={`absolute top-0 left-0 w-full h-1 ${displayMode === 'morning' ? 'bg-blue-500' : displayMode === 'afternoon' ? 'bg-purple-500' : 'bg-green-500'}`}></div>
             
-            <div className="mb-6">
-              <div className={`flex items-center gap-2 mb-1 ${displayMode === 'morning' ? 'text-blue-400' : displayMode === 'afternoon' ? 'text-purple-400' : 'text-green-400'}`}>
+            // App.tsx dosyasındaki 218-223 arası satırlar şuna benzemeli:
+<div className="mb-6">
+  <div className={`flex items-center gap-2 mb-1 ${displayMode === 'morning' ? 'text-blue-400' : displayMode === 'afternoon' ? 'text-purple-400' : 'text-green-400'}`}>
+    <UserCheck size={28} />
+    <h2 className="text-xl font-black uppercase tracking-tighter">Nöbetçi Öğretmenler</h2>
+  </div>
