@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Settings,
-  UserCheck,
-  X,
-  GraduationCap
-} from 'lucide-react';
+import { Settings, UserCheck, X, GraduationCap } from 'lucide-react';
 
 import { Clock } from './Clock';
 import { WeatherWidget } from './WeatherWidget';
@@ -21,10 +16,10 @@ const App: React.FC = () => {
     'Pazar'
   ];
 
-  /* -------------------- HELPERS -------------------- */
+  /* ---------------- HELPERS ---------------- */
 
   const createEmptyDuty = () => {
-    const duty: { [day: string]: DutySection[] } = {};
+    const duty: Record<string, DutySection[]> = {};
     days.forEach(day => {
       duty[day] = Array.from({ length: 5 }, (_, i) => ({
         sectionName: `${i + 1}. Kat`,
@@ -50,7 +45,7 @@ const App: React.FC = () => {
     specialDays: []
   });
 
-  /* -------------------- STATE -------------------- */
+  /* ---------------- STATE ---------------- */
 
   const [config, setConfig] = useState<BoardConfig>(() => {
     const saved = localStorage.getItem('schoolBoardConfig');
@@ -66,17 +61,14 @@ const App: React.FC = () => {
   const [displayMode, setDisplayMode] =
     useState<'morning' | 'afternoon' | 'course'>('morning');
 
-  const [activeEditTab, setActiveEditTab] =
-    useState<'morning' | 'afternoon' | 'course'>('morning');
-
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  /* -------------------- TIME -------------------- */
+  /* ---------------- TIME ---------------- */
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    const t = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(t);
   }, []);
 
   useEffect(() => {
@@ -101,38 +93,40 @@ const App: React.FC = () => {
     };
 
     checkMode();
-    const interval = setInterval(checkMode, 60000);
-    return () => clearInterval(interval);
+    const i = setInterval(checkMode, 60000);
+    return () => clearInterval(i);
   }, [config]);
 
-  /* -------------------- THEME -------------------- */
+  /* ---------------- THEME ---------------- */
 
-  const getThemeColor = () => {
-    if (displayMode === 'morning') return 'text-blue-400';
-    if (displayMode === 'afternoon') return 'text-purple-400';
-    return 'text-green-400';
-  };
+  const themeColor =
+    displayMode === 'morning'
+      ? 'text-blue-400'
+      : displayMode === 'afternoon'
+      ? 'text-purple-400'
+      : 'text-green-400';
 
-  const getHeaderBg = () => {
-    if (displayMode === 'morning') return 'bg-[#0a1025]';
-    if (displayMode === 'afternoon') return 'bg-[#1a0a25]';
-    return 'bg-[#0a2510]';
-  };
+  const headerBg =
+    displayMode === 'morning'
+      ? 'bg-[#0a1025]'
+      : displayMode === 'afternoon'
+      ? 'bg-[#1a0a25]'
+      : 'bg-[#0a2510]';
 
-  /* -------------------- DATA -------------------- */
+  /* ---------------- DATA ---------------- */
 
   const currentDay = currentTime.toLocaleDateString('tr-TR', { weekday: 'long' });
   const activeData = config[displayMode];
 
-  /* -------------------- UI -------------------- */
+  /* ---------------- UI ---------------- */
 
   return (
     <div className="h-screen w-screen bg-[#050507] flex flex-col text-white overflow-hidden">
 
       {/* HEADER */}
-      <header className={`h-24 px-10 flex items-center justify-between border-b border-white/10 ${getHeaderBg()}`}>
+      <header className={`h-24 px-10 flex items-center justify-between border-b border-white/10 ${headerBg}`}>
         <div className="flex items-center gap-6">
-          <GraduationCap size={44} className={getThemeColor()} />
+          <GraduationCap size={44} className={themeColor} />
           <div>
             <h1 className="text-4xl font-black uppercase">{activeData.name}</h1>
             <p className="text-sm text-white/40 font-bold uppercase tracking-widest">
@@ -154,7 +148,7 @@ const App: React.FC = () => {
         <aside className="w-80">
           <div className="h-full bg-[#0f0f14] rounded-[2.5rem] p-8 border border-white/5 flex flex-col">
             <div className="mb-6">
-              <div className={`flex items-center gap-2 ${getThemeColor()}`}>
+              <div className={`flex items-center gap-2 ${themeColor}`}>
                 <UserCheck size={28} />
                 <h2 className="text-xl font-black uppercase">Nöbetçiler</h2>
               </div>
@@ -166,7 +160,7 @@ const App: React.FC = () => {
             <div className="flex-1 space-y-4 overflow-y-auto pr-2">
               {activeData.dutyTeachers[currentDay]?.map((d, i) => (
                 <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                  <div className={`text-[10px] font-black uppercase mb-1 ${getThemeColor()}`}>
+                  <div className={`text-[10px] font-black uppercase mb-1 ${themeColor}`}>
                     {d.sectionName}
                   </div>
                   <div className="text-lg font-bold">
@@ -191,7 +185,7 @@ const App: React.FC = () => {
         </section>
       </main>
 
-      {/* SETTINGS BUTTON */}
+      {/* SETTINGS */}
       <button
         onClick={() => setIsSettingsOpen(true)}
         className="fixed bottom-10 right-10 bg-white/10 p-5 rounded-2xl border border-white/20 hover:scale-110 transition-all z-50"
@@ -199,7 +193,6 @@ const App: React.FC = () => {
         <Settings size={36} />
       </button>
 
-      {/* SETTINGS MODAL */}
       {isSettingsOpen && (
         <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-6">
           <div className="w-full max-w-4xl bg-[#0d0d12] p-10 rounded-[3rem] border border-white/10">
