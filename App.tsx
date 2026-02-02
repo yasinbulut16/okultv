@@ -216,4 +216,4 @@ const App: React.FC = () => {
             <div className={`absolute top-0 left-0 w-full h-1 ${displayMode === 'morning' ? 'bg-blue-500' : displayMode === 'afternoon' ? 'bg-purple-500' : 'bg-green-500'}`}></div>
             
             <div className="mb-6">
-              <div className={`flex items-center gap-2 mb-1 ${displayMode === 'morning' ? 'text-blue-400' : displayMode === 'afternoon' ? 'text-purple-400' : 'text-green-400'}`}></div><div className={`flex items-center gap-2 mb-1 ${displayMode === 'morning' ? 'text-blue-400' : displayMode === 'afternoon' ? 'text-purple-400' : 'text-green-400'}`}>
+              <div className={`flex items-center gap-2 mb-1 ${displayMode === 'morning' ? 'text-blue-400' : displayMode === 'afternoon' ? 'text-purple-400' : 'text-green-400'}`}>
