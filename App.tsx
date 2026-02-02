@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Settings, UserCheck, X, Save, GraduationCap,
-  Timer, Sun, Moon, School
+  Settings, UserCheck, X, Save, GraduationCap, Timer, Sun, Moon, School 
 } from 'lucide-react';
 import { Clock } from './Clock';
 import { WeatherWidget } from './WeatherWidget';
@@ -49,8 +48,7 @@ const App: React.FC = () => {
       const time = now.getHours() * 100 + now.getMinutes();
       
       if (day === "Cumartesi" || day === "Pazar") {
-        setDisplayMode('course');
-        return;
+        setDisplayMode('course'); return;
       }
 
       const mS = parseInt(config.morning.startTime.replace(':', ''));
@@ -66,7 +64,6 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [config]);
 
-  // Hata veren kısmı fonksiyonlara böldük (GÜVENLİ YÖNTEM)
   const getThemeColor = () => {
     if (displayMode === 'morning') return 'text-blue-400';
     if (displayMode === 'afternoon') return 'text-purple-400';
@@ -83,13 +80,13 @@ const App: React.FC = () => {
   const activeData = config[displayMode];
 
   return (
-    <div className="h-screen w-screen bg-[#050507] flex flex-col overflow-hidden text-white">
+    <div className="h-screen w-screen bg-[#050507] flex flex-col overflow-hidden text-white font-sans">
       <header className={`h-24 flex items-center justify-between px-10 border-b border-white/10 ${getHeaderBg()}`}>
         <div className="flex items-center gap-6">
           <GraduationCap size={44} className={getThemeColor()} />
           <div>
             <h1 className="text-4xl font-black uppercase">{activeData.name}</h1>
-            <p className="text-white/40 text-sm font-bold uppercase">{activeData.motto}</p>
+            <p className="text-white/40 text-sm font-bold uppercase tracking-widest">{activeData.motto}</p>
           </div>
         </div>
         <div className="flex items-center gap-8">
@@ -99,7 +96,7 @@ const App: React.FC = () => {
 
       <main className="flex-1 flex p-6 gap-6 overflow-hidden">
         <aside className="w-80 flex flex-col gap-4">
-          <div className="bg-[#0f0f14] rounded-[2.5rem] p-8 flex-1 border border-white/5 overflow-hidden">
+          <div className="bg-[#0f0f14] rounded-[2.5rem] p-8 flex-1 border border-white/5 overflow-hidden flex flex-col">
             <div className="mb-6">
               <div className={`flex items-center gap-2 mb-1 ${getThemeColor()}`}>
                 <UserCheck size={28} />
@@ -107,7 +104,7 @@ const App: React.FC = () => {
               </div>
               <div className="text-sm font-bold text-slate-500 uppercase">{currentDay}</div>
             </div>
-            <div className="space-y-4">
+            <div className="flex-1 space-y-4 overflow-y-auto pr-2">
               {activeData.dutyTeachers[currentDay]?.map((d, i) => (
                 <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/10">
                   <div className={`text-[10px] font-black uppercase mb-1 ${getThemeColor()}`}>{d.sectionName}</div>
@@ -128,29 +125,37 @@ const App: React.FC = () => {
         </section>
       </main>
 
-      <button onClick={() => setIsSettingsOpen(true)} className="fixed bottom-10 right-10 bg-white/10 p-5 rounded-2xl border border-white/20 hover:scale-110 transition-all">
+      <button onClick={() => setIsSettingsOpen(true)} className="fixed bottom-10 right-10 bg-white/10 p-5 rounded-2xl border border-white/20 hover:scale-110 transition-all z-50">
         <Settings size={36} />
       </button>
 
       {isSettingsOpen && (
-        <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-6">
+        <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
           <div className="w-full max-w-4xl bg-[#0d0d12] p-10 rounded-[3rem] border border-white/10 overflow-y-auto max-h-[90vh]">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-black uppercase">Ayarlar</h2>
+              <h2 className="text-3xl font-black uppercase tracking-tighter">Pano Yönetim Merkezi</h2>
               <div className="flex gap-2">
                 {['morning', 'afternoon', 'course'].map((m) => (
-                  <button key={m} onClick={() => setActiveEditTab(m as any)} className={`px-4 py-2 rounded-xl text-xs font-bold ${activeEditTab === m ? 'bg-blue-600' : 'bg-white/5'}`}>{m.toUpperCase()}</button>
+                  <button key={m} onClick={() => setActiveEditTab(m as any)} className={`px-4 py-2 rounded-xl text-[10px] font-black transition-all ${activeEditTab === m ? 'bg-blue-600 text-white' : 'bg-white/5 text-slate-400'}`}>
+                    {m === 'morning' ? 'SABAH' : m === 'afternoon' ? 'ÖĞLE' : 'KURS'}
+                  </button>
                 ))}
-                <button onClick={() => setIsSettingsOpen(false)} className="ml-4"><X /></button>
+                <button onClick={() => setIsSettingsOpen(false)} className="ml-4 p-2 bg-red-500/10 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all"><X /></button>
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <input type="text" value={config[activeEditTab].name} onChange={e => setConfig({...config, [activeEditTab]: {...config[activeEditTab], name: e.target.value}})} className="w-full bg-black p-4 rounded-xl border border-white/10" placeholder="Okul Adı" />
-                <div className="flex gap-4">
-                  <input type="time" value={config[activeEditTab].startTime} onChange={e => setConfig({...config, [activeEditTab]: {...config[activeEditTab], startTime: e.target.value}})} className="w-full bg-black p-4 rounded-xl border border-white/10" />
-                  <input type="time" value={config[activeEditTab].endTime} onChange={e => setConfig({...config, [activeEditTab]: {...config[activeEditTab], endTime: e.target.value}})} className="w-full bg-black p-4 rounded-xl border border-white/10" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kurum Bilgileri</label>
+                  <input type="text" value={config[activeEditTab].name} onChange={e => setConfig({...config, [activeEditTab]: {...config[activeEditTab], name: e.target.value}})} className="w-full bg-black/50 p-4 rounded-xl border border-white/10 outline-none focus:border-blue-500 font-bold" placeholder="Okul Adı" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Aktiflik Saatleri</label>
+                  <div className="flex gap-4">
+                    <input type="time" value={config[activeEditTab].startTime} onChange={e => setConfig({...config, [activeEditTab]: {...config[activeEditTab], startTime: e.target.value}})} className="w-full bg-black/50 p-4 rounded-xl border border-white/10" />
+                    <input type="time" value={config[activeEditTab].endTime} onChange={e => setConfig({...config, [activeEditTab]: {...config[activeEditTab], endTime: e.target.value}})} className="w-full bg-black/50 p-4 rounded-xl border border-white/10" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -158,7 +163,7 @@ const App: React.FC = () => {
             <button onClick={() => {
                localStorage.setItem('schoolBoardConfig', JSON.stringify(config));
                setIsSettingsOpen(false);
-            }} className="w-full mt-8 bg-blue-600 p-5 rounded-2xl font-black text-xl">KAYDET</button>
+            }} className="w-full mt-10 bg-blue-600 p-6 rounded-2xl font-black text-xl hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20">DEĞİŞİKLİKLERİ KAYDET</button>
           </div>
         </div>
       )}
