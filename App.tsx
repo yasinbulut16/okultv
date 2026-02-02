@@ -44,10 +44,12 @@ const App: React.FC = () => {
       const day = now.toLocaleDateString('tr-TR', { weekday: 'long' });
       const time = now.getHours() * 100 + now.getMinutes();
       if (day === "Cumartesi" || day === "Pazar") { setDisplayMode('course'); return; }
+      
       const mS = parseInt(config.morning.startTime.replace(':', ''));
       const mE = parseInt(config.morning.endTime.replace(':', ''));
       const aS = parseInt(config.afternoon.startTime.replace(':', ''));
       const aE = parseInt(config.afternoon.endTime.replace(':', ''));
+      
       if (time >= mS && time <= mE) setDisplayMode('morning');
       else if (time >= aS && time <= aE) setDisplayMode('afternoon');
     };
@@ -56,7 +58,7 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [config]);
 
-  // Hata veren 219. satırı bu güvenli fonksiyonla değiştirdik
+  // Hata veren 219. satırın güvenli fonksiyonel hali
   const getThemeColor = () => {
     if (displayMode === 'morning') return 'text-blue-400';
     if (displayMode === 'afternoon') return 'text-purple-400';
@@ -116,10 +118,13 @@ const App: React.FC = () => {
         <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
           <div className="w-full max-w-4xl bg-[#0d0d12] p-10 rounded-[3rem] border border-white/10">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-black uppercase">Ayarlar</h2>
+              <h2 className="text-3xl font-black uppercase tracking-tighter">Ayarlar</h2>
               <button onClick={() => setIsSettingsOpen(false)}><X /></button>
             </div>
-            <button onClick={() => setIsSettingsOpen(false)} className="w-full bg-blue-600 p-6 rounded-2xl font-black text-xl">KAYDET VE KAPAT</button>
+            <div className="grid grid-cols-2 gap-4">
+                {/* Ayar alanları buraya gelecek */}
+            </div>
+            <button onClick={() => setIsSettingsOpen(false)} className="w-full mt-10 bg-blue-600 p-6 rounded-2xl font-black text-xl">KAYDET VE KAPAT</button>
           </div>
         </div>
       )}
